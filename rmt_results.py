@@ -2,7 +2,6 @@
 import numpy as np
 from utils import *
 import scipy.integrate as integrate
-from scipy.optimize import minimize
 import utils
 
 def Delta(eta, gamma):
@@ -11,14 +10,14 @@ def Delta(eta, gamma):
 def test_expectation_w_1(n, p, vmu, vk, gamma):
     eta = p/n
     delta = Delta(eta, gamma)
-    num = np.sum((vmu + vk) * vmu)
+    num = np.dot(vmu + vk, vmu)
     den = np.sum((vmu + vk)**2)
     return num / (den + 1 + gamma * (1 + delta))
 
 def test_expectation_w_2(n, p, vmu, k, gamma):
     eta = p/n
     delta = Delta(eta, gamma)
-    mu_2 = np.sum(vmu **2)
+    mu_2 = np.sum(vmu**2)
     return (1 - k) * mu_2 / (mu_2 + 1 + gamma * (1 + delta))
 
 def test_expectation(classifier, n, p, vmu, vk, gamma):
@@ -42,15 +41,15 @@ def test_expectation_2_w_1(n, p, vmu, vk, gamma):
     delta = Delta(eta, gamma)
     h = H(n, p, gamma)
     # <vmu + vk, vmu>
-    r_1 = np.sum((vmu + vk) * vmu)
+    r_1 = np.dot(vmu + vk, vmu)
     # || vmu + vk ||^2
     r_2 = np.sum((vmu + vk)**2)
 
     # Remaining terms
     denom = r_2 + 1 + gamma * (1 + delta)
-    s = (r_1**2 + r_2) / denom - 2 * (1 - h) * r_2
+    s = (r_1**2 + r_2**2 * (1 - h) / h + r_2 / h ) / denom - 2 * (1 - h) * r_2
     s = s / (h * denom) 
-    return s + (1 - h) / H
+    return s + (1 - h) / h
 
 def test_expectation_2_w_2(n, p, vmu, k, gamma):
     # Useful quantities
@@ -75,7 +74,6 @@ def test_expectation_2(classifier, n, p, vmu, vk, gamma):
     
 # Computing Test accuracy
 def test_accuracy(classifier, n, p, vmu, vk, gamma):
-
     # E[g] and E[g^2]
     mean = test_expectation(classifier, n, p, vmu, vk, gamma)
     expec_2 = test_expectation_2(classifier, n, p, vmu, vk, gamma)

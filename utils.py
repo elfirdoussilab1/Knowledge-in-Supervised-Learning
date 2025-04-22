@@ -37,6 +37,8 @@ def generate_data(n, vmu, vk, mode, pi = 0.5):
         assert len(vk) == p
         # Add y_i * vk to each sample x_i
         X_train += np.outer(vk, y_train)
+    else:
+        raise NotImplementedError("mode should be either 'features' or 'labels'.")
     return (X_train, y_train), (X_test, y_test)
 
 # Binary accuracy function
@@ -46,7 +48,7 @@ def accuracy(y, y_pred):
 
 # Decision functions:
 def classifier_vector(X, y, gamma):
-    return np.linalg.solve(X @ X.T / X.shape[1] + gamma * np.eye(X.shape[0]), np.eye(X.shape[0])) @ X @ y / X.shape[1]  
+    return np.linalg.inv(X @ X.T / X.shape[1] + gamma * np.eye(X.shape[0])) @ X @ y / X.shape[1]  
 
 
 # g(x) = <w, x>
