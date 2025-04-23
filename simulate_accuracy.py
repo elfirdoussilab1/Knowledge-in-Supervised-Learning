@@ -8,19 +8,19 @@ from tqdm.auto import tqdm
 plt.rcParams.update({"text.usetex": True,"font.family": "STIXGeneral"})
 
 # Parameters
-classifier = 'w_1' # classifier = 'w_1' or 'w_2'
+classifier = 'w_2' # classifier = 'w_1' or 'w_2'
 mode = 'features' if classifier == 'w_1' else 'labels'
 print(mode)
 n = 3000
-p = 200
+p = 100
 pi = 0.4
 
 # Vectors vmu and vk
-mu = 1
+mu = 0.7
 vmu = np.zeros(p)
 vmu[0] = mu
 
-batch = 25
+batch = 20
 
 gammas = np.logspace(-6, 2, 20)
 
@@ -31,10 +31,16 @@ s = 200
 alpha = .9
 
 fig, ax = plt.subplots(1, 3, figsize = (30, 6))
-k_norms = [0.5, 1.2, 2]
-for i, norm_k in enumerate(k_norms):
-    vk = np.zeros(p)
-    vk[0] = norm_k
+if classifier == 'w_1':
+    k_norms = [- mu/2 , 0, 2*mu]
+
+else:
+    k_norms = [- 0.5 , 1.2, 2]
+
+vks = information_vectors(k_norms, mode, p)
+for i in range(len(k_norms)):
+    vk = vks[i]
+    
     acc_th = []
     acc = []
     for gamma in tqdm(gammas):
@@ -49,11 +55,11 @@ for i, norm_k in enumerate(k_norms):
     ax[i].tick_params(axis='x', which = 'both', labelsize=labelsize)
     ax[i].tick_params(axis='y', which = 'both', labelsize=labelsize)
     ax[i].set_xlabel('$\gamma$', fontsize = fontsize)
-    ax[i].set_title(f'$ \| k \| = {norm_k} $', fontsize = fontsize)
+    ax[i].set_title(f'$ \| k \| = {k_norms[i]} $', fontsize = fontsize)
     ax[i].grid(True)
 
 ax[0].set_ylabel('Test Accuracy', fontsize = fontsize)
 ax[0].legend(fontsize = labelsize)
 
-path = './results-plot/' + f'simulate-acc-{classifier}-n-{n}-p-{p}-pi-{pi}-mu-{mu}.pdf'
+path = './study-plot/' + f'simulate-acc-{classifier}-n-{n}-p-{p}-pi-{pi}-mu-{mu}.pdf'
 fig.savefig(path, bbox_inches='tight')
