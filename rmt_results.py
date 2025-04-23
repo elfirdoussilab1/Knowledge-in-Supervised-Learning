@@ -47,8 +47,8 @@ def test_expectation_2_w_1(n, p, vmu, vk, gamma):
 
     # Remaining terms
     denom = r_2 + 1 + gamma * (1 + delta)
-    s = (r_1**2 + r_2**2 * (1 - h) / h + r_2 / h ) / denom - 2 * (1 - h) * r_2
-    s = s / (h * denom) 
+    s = (r_1**2 + r_2**2 * (1 - h) / h + r_2 / h ) / denom - 2 * (1 - h) * r_2 / h
+    s = s / denom
     return s + (1 - h) / h
 
 def test_expectation_2_w_2(n, p, vmu, k, gamma):
@@ -56,11 +56,11 @@ def test_expectation_2_w_2(n, p, vmu, k, gamma):
     eta = p/n
     delta = Delta(eta, gamma)
     h = H(n, p, gamma)
-    mu_2 = np.sum(vmu **2)
+    mu_2 = np.sum(vmu**2)
     denom = mu_2 + 1 + gamma*(1 + delta)
 
     # Computing final term
-    s = mu_2 * ((mu_2 + 1) / denom - 2 * (1 - h)) / denom + (1 - h) / h
+    s = mu_2 * ((mu_2 + 1) / denom - 2 * (1 - h)) / (h * denom) + (1 - h) / h
 
     return s * (1 - k)**2
 

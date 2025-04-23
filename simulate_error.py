@@ -54,7 +54,7 @@ for i, norm_k in enumerate(k_norms):
     ax[i].set_title(f'$ \| k \| = {norm_k} $', fontsize = fontsize)
     ax[i].grid(True)
 
-ax[0].set_ylabel('Test Risk', fontsize = fontsize)
+ax[0].set_ylabel('Test Error', fontsize = fontsize)
 ax[0].legend(fontsize = labelsize)
 
 path = './results-plot/' + f'simulate-error-{classifier}-n-{n}-p-{p}-pi-{pi}-mu-{mu}.pdf'
