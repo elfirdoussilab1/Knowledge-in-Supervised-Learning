@@ -2,6 +2,7 @@
 import numpy as np
 import random
 import numbers
+from scipy.stats import norm
 
 def fix_seed(seed):
     np.random.seed(seed)
@@ -118,6 +119,28 @@ def empirical_risk(batch, n, vmu, vk, gamma, pi, mode, data_type = 'synthetic'):
         res += L2_loss(w, X_test, y_test)
     return res / batch
     
+
+def information_vectors(k_norms, mode, p = 1):
+    if mode == 'labels':
+        return k_norms
+    else: # features
+        k = len(k_norms)
+        vks = np.zeros((k, p))
+        vks[:,0] = k_norms
+        return vks
+    
 # Gaussian density function
 def gaussian(x, mean, std):
     return np.exp(- (x - mean)**2 / (2 * std**2)) / (std * np.sqrt(2 * np.pi))
+
+def bayes_accuracy(vmu):
+    """
+    Compute Bayes accuracy when the means are symmetric: N(-mu, I) vs N(mu, I)
+    
+    Parameters:
+    - mu: Mean vector (numpy array)
+    
+    Returns:
+    - Bayes accuracy (float)
+    """
+    return norm.cdf(np.linalg.norm(vmu))
