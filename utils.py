@@ -3,6 +3,7 @@ import numpy as np
 import random
 import numbers
 from scipy.stats import norm
+import dataset
 
 def fix_seed(seed):
     np.random.seed(seed)
@@ -69,15 +70,14 @@ def empirical_accuracy(batch, n, vmu, vk, gamma, pi, mode, data_type = 'syntheti
         if 'synthetic' in data_type:
            (X_train, y_train), (X_test, y_test) = generate_data(n, vmu, vk, mode, pi)
         
-        else: 
-            raise NotImplementedError("Not implmeented yet.")
-        # elif 'amazon' in data_type:
-        #     type = data_type.split('_')[1]
-        #     data = dataset.Amazon(epsp, epsm, type, pi, n)
-        #     X_train, y_train_noisy = data.X_train.T, data.y_train_noisy
-        #     X_test, y_test = data.X_test.T, data.y_test
+        elif 'amazon' in data_type:
+            typ = data_type.split('_')[1]
+            data = dataset.Amazon_data(typ, n)
+            X_train, y_train = data.X_train, data.y_train
+            X_train += np.outer(y_train, vk * data.vmu_2)
+            X_test, y_test = data.X_test.T, data.y_test
 
-        w = classifier_vector(X_train, y_train, gamma)
+        w = classifier_vector(X_train.T, y_train, gamma)
         res += accuracy(y_test, decision(w, X_test))
     return res / batch
 
@@ -87,8 +87,12 @@ def empirical_mean(batch, n, vmu, vk, gamma, pi, mode, data_type = 'synthetic'):
         if 'synthetic' in data_type:
             (X_train, y_train), (X_test, y_test) = generate_data(n, vmu, vk, mode, pi)
         
-        else:
-            raise NotImplementedError("Not implmeented yet.")
+        elif 'amazon' in data_type:
+            typ = data_type.split('_')[1]
+            data = dataset.Amazon_data(typ, n)
+            X_train, y_train = data.X_train.T, data.y_train
+
+            X_test, y_test = data.X_test.T, data.y_test
 
         w = classifier_vector(X_train, y_train, gamma)
         res += np.mean(y_test * (X_test.T @ w))
@@ -99,8 +103,11 @@ def empirical_mean_2(batch, n, vmu, vk, gamma, pi, mode, data_type = 'synthetic'
     for i in range(batch):
         if 'synthetic' in data_type:
             (X_train, y_train), (X_test, y_test) = generate_data(n, vmu, vk, mode, pi)
-        else:
-            raise NotImplementedError("Not implmeented yet.")
+        elif 'amazon' in data_type:
+            typ = data_type.split('_')[1]
+            data = dataset.Amazon_data(typ, n)
+            X_train, y_train = data.X_train.T, data.y_train
+            X_test, y_test = data.X_test.T, data.y_test
 
         w = classifier_vector(X_train, y_train, gamma)
         res += np.mean((X_test.T @ w)**2)
@@ -112,8 +119,11 @@ def empirical_risk(batch, n, vmu, vk, gamma, pi, mode, data_type = 'synthetic'):
         # generate new data
         if 'synthetic' in data_type:
             (X_train, y_train), (X_test, y_test) = generate_data(n, vmu, vk, mode, pi)
-        else:
-            raise NotImplementedError("Not implmeented yet.")
+        elif 'amazon' in data_type:
+            typ = data_type.split('_')[1]
+            data = dataset.Amazon_data(typ, n)
+            X_train, y_train = data.X_train.T, data.y_train
+            X_test, y_test = data.X_test.T, data.y_test
 
         w = classifier_vector(X_train, y_train, gamma)
         res += L2_loss(w, X_test, y_test)
@@ -139,8 +149,5 @@ def bayes_accuracy(vmu):
     
     Parameters:
     - mu: Mean vector (numpy array)
-    
-    Returns:
-    - Bayes accuracy (float)
     """
     return norm.cdf(np.linalg.norm(vmu))
